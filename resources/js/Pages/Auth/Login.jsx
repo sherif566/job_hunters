@@ -1,10 +1,4 @@
-import Checkbox from '@/Components/Checkbox';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { useForm } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -22,79 +16,91 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <GuestLayout>
-            <Head title="Log in" />
+        <div className="flex min-h-screen w-full">
+            <img
+                src="/logo.png"
+                alt="Job Hunters Logo"
+                className="absolute left-1/2 top-[20%] z-10 h-[400px] -translate-x-1/2 -translate-y-1/2 transform drop-shadow-xl"
+            />
+            {/* left part of the login page */}
+            <div className="flex w-1/2 flex-col items-center justify-center bg-white">
+                <h2 className="mb-2 text-3xl font-bold text-gray-800">
+                    Login to Your Account
+                </h2>
 
-            {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
-                    {status}
-                </div>
-            )}
-
-            <form onSubmit={submit}>
-                <div>
-                    <InputLabel htmlFor="email" value="Email" />
-
-                    <TextInput
-                        id="email"
-                        type="email"
-                        name="email"
-                        value={data.email}
-                        className="mt-1 block w-full"
-                        autoComplete="username"
-                        isFocused={true}
-                        onChange={(e) => setData('email', e.target.value)}
-                    />
-
-                    <InputError message={errors.email} className="mt-2" />
+                <div className="mb-6 flex w-full max-w-xs items-center">
+                    <hr className="flex-grow border border-gray-300" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={data.password}
-                        className="mt-1 block w-full"
-                        autoComplete="current-password"
-                        onChange={(e) => setData('password', e.target.value)}
-                    />
-
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4 block">
-                    <label className="flex items-center">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
+                <form onSubmit={submit} className="w-full max-w-xs">
+                    {/* Email Input */}
+                    <div className="mb-4">
+                        <input
+                            type="email"
+                            placeholder="Email"
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                            className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-teal-400"
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
-                        </span>
-                    </label>
-                </div>
+                    </div>
+                    {/* Password Input */}
+                    <div className="mb-4">
+                        <input
+                            type="password"
+                            placeholder="Password"
+                            value={data.password}
+                            onChange={(e) =>
+                                setData('password', e.target.value)
+                            }
+                            className="w-full rounded-md border border-gray-300 px-4 py-2 focus:outline-none focus:ring-teal-400"
+                        />
+                    </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Forgot your password?
-                        </Link>
-                    )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
-                    </PrimaryButton>
+                    <button
+                        type="submit"
+                        className="mb-2 w-full rounded-md bg-teal-500 py-2 font-semibold text-white transition duration-200 hover:bg-teal-600"
+                    >
+                        Sign In
+                    </button>
+                </form>
+                
+                <div className="mb-6 flex w-full max-w-xs items-center">
+                    <hr className="flex-grow border-t border-gray-300" />
+                    <span className="mx-2 text-sm text-gray-200">OR</span>
+                    <hr className="flex-grow border-t border-gray-300" />
                 </div>
-            </form>
-        </GuestLayout>
+                <p className="mb-6 text-sm text-gray-500">
+                    Login using social networks
+                </p>
+
+                <div className="mb-6 flex space-x-4">
+                    <button className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-800 text-sm font-bold text-white">
+                        f
+                    </button>
+                    <button className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500 text-sm font-bold text-white">
+                        G+
+                    </button>
+                    <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-700 text-sm font-bold text-white">
+                        in
+                    </button>
+                </div>
+            </div>
+
+            {/* right part of the login page */}
+            <div className="flex w-1/2 flex-col items-center justify-center bg-gradient-to-br from-green-400 to-teal-500 p-12 text-white">
+                <h2 className="mb-4 text-3xl font-bold"> New Here ?</h2>
+
+                <p className="mb-6 px-6 text-center text-sm">
+                    Sign up and discover a great amount of new opportunities!
+                </p>
+
+                <a
+                    className="rounded-full bg-white px-6 py-2 font-semibold text-teal-500 shadow transition duration-200 hover:bg-gray-100"
+                    href="/register"
+                >
+                    Sign Up
+                </a>
+            </div>
+        </div>
     );
 }
