@@ -49,7 +49,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                 className="flex items-center space-x-2 focus:outline-none"
                             >
                                 <UserCircleIcon className="h-6 w-6 text-gray-600" />
-                                <span className="text-sm text-gray-600">{user.name}</span>
+                                <span className="text-sm text-gray-600">{user?.name ?? 'Guest'}</span>
                                 <ChevronDownIcon
                                     className={`h-4 w-4 text-gray-600 transition-transform duration-200 ${
                                         open ? 'rotate-180' : ''

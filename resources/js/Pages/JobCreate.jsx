@@ -11,7 +11,7 @@ const JobCreate = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        Inertia.post('/job-posts', {
+        Inertia.post(route('job.store'), {
             title,
             description,
         });

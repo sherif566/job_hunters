@@ -7,49 +7,58 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Middleware\HandleInertiaRequests;
-
-// Route::get('/', function () {
-//     return Inertia::render('Welcome', [
-//         'canLogin' => Route::has('login'),
-//         'canRegister' => Route::has('register'),
-//         'laravelVersion' => Application::VERSION,
-//         'phpVersion' => PHP_VERSION,
-//     ]);
-// });
+use App\Http\Middleware\IsAdmin;
+use App\Http\Controllers\JobPostsController;
 
 
-Route::get('/test-user', function (Request $request) {
-    return dd($request->user());
-});
 
 Route::get('/', function () {
     return redirect('/login');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', HandleInertiaRequests::class])->name('dashboard');
 
 
-Route::get('job-posts', function () {
-    $jobPosts = JobPost::all();
-    return Inertia::render('JobPosts', ['jobPosts' => $jobPosts]);
-})->middleware(['auth', HandleInertiaRequests::class])->name('jobposts');
+Route::middleware(['auth', \App\Http\Middleware\HandleInertiaRequests::class])->group(function () {
+    Route::get('/dashboard', function () {
+        return Inertia::render('Dashboard');
+    })->name('dashboard');
+    Route::get('/job-posts', [JobPostsController::class, 'index'])->name('jobposts');
+    Route::get('/job-posts/create', [JobPostsController::class, 'create'])->name('jobcreate');
+    Route::post('/job-posts', [JobPostsController::class, 'store'])->name('job.store');
+});
 
 
-Route::get('/job-posts/create', function () {
-    return Inertia::render('JobCreate');
-})->middleware(['auth', HandleInertiaRequests::class])->name('jobcreate');
+Route::middleware(['auth', IsAdmin::class])->group(function () {
 
-//create a job
-Route::post('/job-posts', function (Request $request) {
-    $validated = $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'required|string'
-    ]);
+    Route::get('/admin/dashboard', function () {
+        return Inertia::render('AdminDashboard');
+    })->name('admin.dashboard');
 
-    JobPost::create($validated);
-    return Inertia::location('/job-posts');
+
+    Route::get('/admin/jobs', function () {
+        $jobs = JobPost::where('is_approved', false)->get();
+        return Inertia::render('Admin/JobApprovals', [
+            'jobs' => $jobs,
+        ]);
+    })->name('admin.pending.jobs');
+
+    Route::post('/admin/jobs/{id}/approve', function ($id) {
+        $job = JobPost::findOrFail($id);
+        $job->is_approved = true;
+        $job->save();
+
+        $jobs = \App\Models\JobPost::where('is_approved', false)->get();
+
+        return response()->json(['success' => true]);
+    })->name('admin.jobs.approve');
+
+    Route::post('/admin/jobs/{id}/disapprove', function ($id) {
+        $job = JobPost::findOrFail($id);
+        $job->delete();
+        $jobs = \App\Models\JobPost::where('is_approved', false)->get();
+
+        return response()->json(['success' => true]);
+    })->name('admin.jobs.disapprove');
 });
 
 
