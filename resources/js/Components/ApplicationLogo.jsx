@@ -1,7 +1,7 @@
 export default function ApplicationLogo(props) {
     return (
         <img
-            src="/logo.jpg"
+            src="/logo.png"
             alt="Job Hunters Logo"
             {...props}
         />

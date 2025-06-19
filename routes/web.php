@@ -23,7 +23,7 @@ Route::get('/test-user', function (Request $request) {
 });
 
 Route::get('/', function () {
-    return redirect('/job-posts');
+    return redirect('/login');
 });
 
 Route::get('/dashboard', function () {
@@ -34,12 +34,12 @@ Route::get('/dashboard', function () {
 Route::get('job-posts', function () {
     $jobPosts = JobPost::all();
     return Inertia::render('JobPosts', ['jobPosts' => $jobPosts]);
-});
+})->middleware(['auth', HandleInertiaRequests::class])->name('jobposts');
 
 
 Route::get('/job-posts/create', function () {
     return Inertia::render('JobCreate');
-});
+})->middleware(['auth', HandleInertiaRequests::class])->name('jobcreate');
 
 //create a job
 Route::post('/job-posts', function (Request $request) {
