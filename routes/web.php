@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\JobPostsController;
+use App\Models\DeniedJobs;
 
 
 
@@ -40,7 +41,7 @@ Route::middleware(['auth', IsAdmin::class])->group(function () {
         return Inertia::render('Admin/JobApprovals', [
             'jobs' => $jobs,
         ]);
-    })->name('admin.pending.jobs');
+    })->name('admin.pending.jobs')->middleware(['auth', \App\Http\Middleware\HandleInertiaRequests::class]);
 
     Route::post('/admin/jobs/{id}/approve', function ($id) {
         $job = JobPost::findOrFail($id);
@@ -52,13 +53,26 @@ Route::middleware(['auth', IsAdmin::class])->group(function () {
         return response()->json(['success' => true]);
     })->name('admin.jobs.approve');
 
-    Route::post('/admin/jobs/{id}/disapprove', function ($id) {
-        $job = JobPost::findOrFail($id);
-        $job->delete();
-        $jobs = \App\Models\JobPost::where('is_approved', false)->get();
+    Route::post('/admin/jobs/{id}/disapprove', function ($id, Request $request) {
+    $request->validate([
+        'reason' => 'required|string|max:1000',
+    ]);
 
-        return response()->json(['success' => true]);
-    })->name('admin.jobs.disapprove');
+    $job = JobPost::findOrFail($id);
+
+    DeniedJobs::create([
+        'id' => $id,
+        'title'=>$request->title,
+        'description'=>$request->description,
+        'denial_reason' => $request->reason,
+    ]);
+
+    $job->delete();
+
+    return response()->json(['success' => true]);
+})->name('admin.jobs.disapprove');
+
+
 });
 
 
