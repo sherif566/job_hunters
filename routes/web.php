@@ -10,6 +10,7 @@ use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Controllers\JobPostsController;
 use App\Models\DeniedJobs;
+use App\Notifications\JobStatusChanged;
 
 
 
@@ -45,34 +46,35 @@ Route::middleware(['auth', IsAdmin::class])->group(function () {
 
     Route::post('/admin/jobs/{id}/approve', function ($id) {
         $job = JobPost::findOrFail($id);
+        $user = $job->user;
         $job->is_approved = true;
         $job->save();
 
         $jobs = \App\Models\JobPost::where('is_approved', false)->get();
+        $user->notify(new JobStatusChanged('approved'));
 
         return response()->json(['success' => true]);
     })->name('admin.jobs.approve');
 
     Route::post('/admin/jobs/{id}/disapprove', function ($id, Request $request) {
-    $request->validate([
-        'reason' => 'required|string|max:1000',
-    ]);
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
 
-    $job = JobPost::findOrFail($id);
+        $job = JobPost::findOrFail($id);
+        $user = $job->user;
+        DeniedJobs::create([
+            'id' => $id,
+            'title' => $request->title,
+            'description' => $request->description,
+            'denial_reason' => $request->reason,
+        ]);
 
-    DeniedJobs::create([
-        'id' => $id,
-        'title'=>$request->title,
-        'description'=>$request->description,
-        'denial_reason' => $request->reason,
-    ]);
+        $job->delete();
+        $user->notify(new JobStatusChanged('denied', $request->reason));
 
-    $job->delete();
-
-    return response()->json(['success' => true]);
-})->name('admin.jobs.disapprove');
-
-
+        return response()->json(['success' => true]);
+    })->name('admin.jobs.disapprove');
 });
 
 

@@ -26,7 +26,7 @@ class JobPostsController extends Controller
             'description' => 'required|string',
         ]);
 
-        JobPost::create($validated);
+        $request->user()->jobPosts()->create($validated);
         return redirect()->route('dashboard');
     }
 }
