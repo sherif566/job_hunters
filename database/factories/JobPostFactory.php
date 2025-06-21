@@ -20,7 +20,7 @@ class JobPostFactory extends Factory
         return [
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
-            'is_approved' => fake()->boolean(),
+            'status' => fake()->boolean(),
             'user_id' => User::factory(),
         ];
     }

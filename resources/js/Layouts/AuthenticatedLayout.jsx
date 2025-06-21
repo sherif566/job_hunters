@@ -40,6 +40,11 @@ export default function AuthenticatedLayout({ header, children }) {
                             >
                                 Add Job
                             </Link>
+                            <Link
+                           href={route('user.jobs')}
+                            className='font-medium text-gray-700 hover:text-teal-600'>
+                                My Jobs
+                            </Link>
                         </div>
 
                         {/* 🔸 User dropdown */}

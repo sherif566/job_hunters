@@ -9,7 +9,19 @@ class JobPost extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description'];
+    protected $fillable = [
+        'title',
+         'description',
+         'status',
+         'company_name',
+         'location',
+         'salary_min',
+         'salary_max',
+         'job_type',
+         'category',
+         'company_website',
+         'user_id'
+        ];
 
 
     public function user()

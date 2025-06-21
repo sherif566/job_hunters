@@ -27,6 +27,13 @@ Route::middleware(['auth', \App\Http\Middleware\HandleInertiaRequests::class])->
     Route::get('/job-posts', [JobPostsController::class, 'index'])->name('jobposts');
     Route::get('/job-posts/create', [JobPostsController::class, 'create'])->name('jobcreate');
     Route::post('/job-posts', [JobPostsController::class, 'store'])->name('job.store');
+    Route::get('/my-jobs', function () {
+        $jobs = auth()->user()->jobPosts()->latest()->get();
+
+        return Inertia::render('MyJobs', [
+            'jobs' => $jobs,
+        ]);
+    })->name('user.jobs');
 });
 
 
@@ -38,7 +45,7 @@ Route::middleware(['auth', IsAdmin::class])->group(function () {
 
 
     Route::get('/admin/jobs', function () {
-        $jobs = JobPost::where('is_approved', false)->get();
+        $jobs = JobPost::where('status', 'pending')->get();
         return Inertia::render('Admin/JobApprovals', [
             'jobs' => $jobs,
         ]);
@@ -47,10 +54,10 @@ Route::middleware(['auth', IsAdmin::class])->group(function () {
     Route::post('/admin/jobs/{id}/approve', function ($id) {
         $job = JobPost::findOrFail($id);
         $user = $job->user;
-        $job->is_approved = true;
+        $job->status = 'approved';
         $job->save();
 
-        $jobs = \App\Models\JobPost::where('is_approved', false)->get();
+        $jobs = \App\Models\JobPost::where('status', 'pending')->get();
         $user->notify(new JobStatusChanged('approved'));
 
         return response()->json(['success' => true]);
@@ -63,6 +70,7 @@ Route::middleware(['auth', IsAdmin::class])->group(function () {
 
         $job = JobPost::findOrFail($id);
         $user = $job->user;
+        $job->status = 'denied';
         DeniedJobs::create([
             'id' => $id,
             'title' => $request->title,
